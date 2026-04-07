@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { Mail, Lock, User, Phone, AlertCircle } from 'lucide-react';
+import { apiService } from '../services/api';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -31,8 +32,22 @@ const Register = () => {
     try {
       setError('');
       setLoading(true);
+      
+      // 1. Firebase Auth
       await signup(formData.email, formData.password);
-      // In a real app, you would save the profile data to the backend here
+      
+      // 2. Backend Profile Creation
+      const profileData = {
+        name: formData.name,
+        email: formData.email,
+        role: formData.role,
+        gender: formData.gender,
+        phone: formData.phone,
+        profilePic: ''
+      };
+      
+      await apiService.createUserProfile(profileData);
+      
       navigate('/login');
     } catch (err) {
       setError('Failed to create an account. ' + err.message);
